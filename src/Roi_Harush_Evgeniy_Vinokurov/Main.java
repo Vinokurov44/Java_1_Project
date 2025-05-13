@@ -2,182 +2,204 @@ package Roi_Harush_Evgeniy_Vinokurov;
 import java.util.Scanner;
 
 public class Main {
-    final static int INCREASER = 2;
+    private static Scanner scan = new Scanner(System.in);
+
     public static void main(String[] args) {
         /*
         Roi Harush
         Evgeniy Vinokurov
          */
-        Scanner scan = new Scanner(System.in);
         System.out.print("Enter collage name: ");
-        String collageName = scan.nextLine();
-        menu(scan);
-
+        String collegeName = scan.nextLine();
+        CollegeManager college = new CollegeManager(collegeName);
+        menu(college);
     }
 
-    /*
-    This method calculates the average of a double array,
-    ignoring zero values. Currently, this method is not used in the program.
-    */
-    public static double getAverage(double[] salary){
-        int salCount = 0;
-        double sum = 0;
-        for (int i = 0; i <salary.length; i++){
-            if (salary[i] != 0){
-                sum += salary[i];
-                salCount ++;
-            }
-        }
-        if (salCount !=0)
-            return sum/salCount;
-        return salCount;
-    }
-
-    /*
-    This method receives a String array, a label for the content,
-    a Scanner, and the index to insert into. It asks the user to enter a new string,
-    checks if it already exists in the array, and adds it if it's unique.
-    If the array is full, it increases its size.
-    Returns the updated array.
-     */
-    public static String[] addToArr(String[] arr, String content, Scanner scan, int lastPosition){
-        System.out.print("Enter "+content);
-        String name = scan.nextLine();
-        while (isExist(arr,name)){
-            System.out.println(content +" exist!");
-            System.out.print("Enter "+content);
-            name = scan.nextLine();
-        }
-        if (lastPosition == arr.length)
-            arr = increaseArr(arr);
-        arr[lastPosition] = name;
-        System.out.println("Successfully added");
-        return arr;
-
-    }
-    /*
-    This method receives a String array and returns a new array
-    with double the original size, copying over all existing elements.
-    The increase factor is defined by a constant.
-    */
-    public static String [] increaseArr(String [] arr){
-        int size =  arr.length;
-        String[] newArr = new String[size*INCREASER];
-        for (int i = 0; i<size;i++){
-            newArr[i] = arr[i];
-        }
-        return newArr;
-    }
-
-    /*
-    This method checks whether a given string exists in the provided array.
-    Returns true if found, false otherwise.
-     */
-    public static boolean isExist(String [] arr , String name){
-        for (int i = 0; i < arr.length; i++){
-            if (arr[i] != null && arr[i].equals(name)){
-                return true ;
-            }
-        }
-        return false;
-    }
-
-    /*
-    This method prints the array in a clean format,
-    ignoring null values to avoid showing empty entries.
-     */
-    public static void printArr(String[] arr){
-        int i = 0;
-        System.out.print("[");
-        for (; i < arr.length;i++){
-            if (arr[i] !=null && i+1 < arr.length && arr[i+1] !=null){
-                System.out.print(arr[i]+',');
-            }
-            else if (arr[i]!=null)
-                System.out.print(arr[i]);
-
-        }
-        System.out.println(']');
-    }
-
-    /*
-    this method will print the menu to simplizing the user experience in the program.
-     */
-    public static void printMenu(){
-        System.out.println("Please choose option: ");
-        System.out.println("0 - Exit");
-        System.out.println("1 - Add lecturer");
-        System.out.println("2 - Add Committee");
-        System.out.println("3 - Add Study class");
-        System.out.println("4 - Put lecturer to committee");
-        System.out.println("5 - Show all lecturers average salary");
-        System.out.println("6 - Show average salary of lecturers from specific study class");
-        System.out.println("7 - Show all lecturers information");
-        System.out.println("8 - Show all committee information");
-    }
-
-    /*
-    this method will connect lecturer to committee, at this version, it only shows if one of them does not exist.
-     */
-    public static void assignLecturer(String[] lecArray , String[] comArray, String lecturer, String committee){
-        if (!isExist(lecArray, lecturer) || !isExist(comArray, committee))
-            System.out.println("One of them does not exited!");
-    }
-
-    /*
-    This is the main menu loop of the program.
-    It displays options to the user and handles input accordingly.
-     */
-    public static void menu(Scanner scan) {
-        String[] lecturerArr = new String[1];
-        String[] committeeArr = new String[1];
-        String[] studyClassArr = new String[1];
-        int[] arraysCounter = {0, 0, 0};
+    public static void menu(CollegeManager college) {
         int option;
-        while (true) {
-            printMenu();
-            option = scan.nextInt();
-            scan.nextLine();
+        Main.printMenu();
+        option = scan.nextInt();
+        scan.nextLine();
+        while (option !=0) {
             switch(option){
-                case 0:
-                    return;
                 case 1:
-                    lecturerArr = addToArr(lecturerArr,"Lecturer name: ", scan, arraysCounter[0]);
-                    arraysCounter[0] ++;
+                    newLecturer(college);
                     break;
                 case 2:
-                    committeeArr = addToArr(committeeArr,"committee: ", scan, arraysCounter[1]);
-                    arraysCounter[1] ++;
+                    newCommittee(college);
                     break;
                 case 3:
-                    studyClassArr = addToArr(studyClassArr,"study class: ", scan, arraysCounter[2]);
-                    arraysCounter[2] ++;
+                    addMemberToCommittee(college);
                     break;
                 case 4:
-                    System.out.print("Enter lecturer: ");
-                    String lecturer = scan.nextLine();
-                    System.out.print("Enter committee: ");
-                    String committee = scan.nextLine();
-                    assignLecturer(lecturerArr, committeeArr, lecturer, committee);
+                    updateChair(college);
                     break;
                 case 5:
-                    //addToArr(salary arr);
-                    System.out.println("This feature is not implemented in this version.");
+                    removeMemberFromCommittee(college);
                     break;
                 case 6:
-                    //addToArr(salary arr);
-                    System.out.println("This feature is not implemented in this version.");
+                    addNewDepartment(college);
                     break;
                 case 7:
-                    printArr(lecturerArr);
+                    assignLecturerToDepartment(college);
                     break;
                 case 8:
-                    printArr(committeeArr);
+                    removeLecturerFromDepartment(college);
+                    break;
+                case 9:
+                    System.out.println(college.getAverage());
+                    break;
+                case 10:
+                    System.out.println(averageFromDepartment(college));
+                    break;
+                case 11:
+                    college.showLecturers();
+                    break;
+                case 12:
+                    college.showCommittees();
+                    break;
+                case 13:
+                    college.showDepartments();
+                    break;
+                case 14:
+                    college.benchMark();
                     break;
                 default:
                     System.out.println("Wrong input!");
                     break;
             }
+            Main.printMenu();
+            option = scan.nextInt();
+            scan.nextLine();
         }
     }
+
+    public static void printMenu(){
+        System.out.println("-------Menu-------");
+        //System.out.println("-------------------------------------------------------------------");
+        System.out.println("0 - Exit");
+        System.out.println("1 - Add new lecturer");
+        System.out.println("2 - Add new Committee");
+        System.out.println("3 - Add member to committee");
+        System.out.println("4 - update committee's Chair");
+        System.out.println("5 - Remove member from committee");
+        System.out.println("6 - Add new department");
+        System.out.println("7 - Assign lecturer to department");
+        System.out.println("8 - Remove lecturer from department");
+        System.out.println("9 - Show all lecturers salary average");
+        System.out.println("10 - Show all lecturers from specific department salary average");
+        System.out.println("11 - Show lecturers information");
+        System.out.println("12 - Show committees information");
+        System.out.println("13 - Show department information");
+        System.out.println("14 - run benchMarks");
+        System.out.print("Please choose option: ");
+    }
+
+    public static void newLecturer(CollegeManager college){
+        String fullName, id, title, titleName, departmentName;
+        double salary;
+        fullName = getStrFromUser("Full Name");
+        while(college.isLecturerExist(fullName)){
+            System.out.println("Lecturer already exist!");
+            fullName = getStrFromUser("Full Name");
+        }
+        id = getStrFromUser("Id");
+        title = getStrFromUser("Title");
+        titleName = getStrFromUser("Title Name");
+        salary = getDoubleFromUser("Salary");
+        departmentName = getStrFromUser("Department");
+        college.createLecturer(fullName,id,title,titleName,salary,departmentName);
+        System.out.println("Lecturer added!");
+    }
+
+    public static void newCommittee(CollegeManager college){
+        String committeeName, fullName;
+        committeeName = getStrFromUser("Committee Name");
+        while(college.isCommitteeExist(committeeName)){
+            System.out.println("Committee already exist!");
+            committeeName = getStrFromUser("Committee Name");
+        }
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.createCommittee(committeeName, fullName);
+        System.out.println(success ? "Committee added!" : "Cant create committee");
+    }
+
+    public static void addMemberToCommittee(CollegeManager college){
+        String committeeName, fullName;
+        committeeName = getStrFromUser("Committee Name");
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.addMember(committeeName, fullName);
+        System.out.println(success ? "Member added!" : "Cant add member");
+    }
+
+    public static void updateChair(CollegeManager college){
+        String committeeName, fullName;
+        committeeName = getStrFromUser("Committee Name");
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.updateCommitteeChair(committeeName, fullName);
+        System.out.println(success ? "Member added!" : "Cant add member");
+    }
+
+    public static void removeMemberFromCommittee(CollegeManager college){
+        String committeeName, fullName;
+        committeeName = getStrFromUser("Committee Name");
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.removeMember(committeeName, fullName);
+        System.out.println(success ? "Member removed!" : "Cant remove member");
+    }
+
+    public static void addNewDepartment(CollegeManager college){
+        String departmentName;
+        int numOfStudent;
+        departmentName = getStrFromUser("Department Name");
+        while (college.isDepartmentExist(departmentName)){
+            System.out.println("Department already exist!");;
+            departmentName = getStrFromUser("Department Name");
+
+        }
+        numOfStudent = getIntFromUser("Num Of Student");
+        college.createDepartment(departmentName, numOfStudent);
+        System.out.println("Department added!");
+    }
+
+    public static void assignLecturerToDepartment(CollegeManager college){
+        String departmentName, fullName;
+        departmentName = getStrFromUser("Department Name");
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.addLecturerToDepartment(departmentName, fullName);
+        System.out.println(success ? "Lecturer assigned to "+ departmentName : "Cant assign Lecturer");
+    }
+
+    public static void removeLecturerFromDepartment(CollegeManager college){
+        String departmentName, fullName;
+        departmentName = getStrFromUser("Department Name");
+        fullName = getStrFromUser("Full Name");
+        boolean success = college.removeLecturerFromDepartment(departmentName, fullName);
+        System.out.println(success ? "Lecturer removed from "+ departmentName : "Cant remove Lecturer");
+    }
+
+    public static double averageFromDepartment(CollegeManager college){
+        String departmentName = getStrFromUser("Department Name");
+        return college.getAverageByDepartment(departmentName);
+    }
+
+    public static String getStrFromUser(String type){
+        System.out.print("Enter " + type + ": ");
+        return scan.nextLine();
+    }
+
+    public static double getDoubleFromUser(String type){
+        System.out.print("Enter " + type + ": ");
+        double result =  scan.nextDouble();
+        scan.nextLine();
+        return result;
+    }
+
+    public static int getIntFromUser(String type){
+        System.out.print("Enter " + type + ": ");
+        int result =  scan.nextInt();
+        scan.nextLine();
+        return result;
+    }
 }
+
