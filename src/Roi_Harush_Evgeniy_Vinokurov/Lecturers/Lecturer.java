@@ -1,10 +1,12 @@
-package Roi_Harush_Evgeniy_Vinokurov;
+package Roi_Harush_Evgeniy_Vinokurov.Lecturers;
+import Roi_Harush_Evgeniy_Vinokurov.Exeptions.AssignLecturerToAcademicUnitException;
+import Roi_Harush_Evgeniy_Vinokurov.Exeptions.LectureNullDetails;
+import Roi_Harush_Evgeniy_Vinokurov.AcademicUnit.Committee;
+import Roi_Harush_Evgeniy_Vinokurov.AcademicUnit.Department;
 
-
-import java.util.Arrays;
 import java.util.Objects;
 
-public class Lecturer{
+public class Lecturer implements Cloneable{
     private static final int RESIZE_FACTOR = 2;
 
     public enum Title {
@@ -14,16 +16,16 @@ public class Lecturer{
         Professor,
     }
 
-    private String fullName;
-    private String id;
-    private Title title;
-    private String titleName;
-    private double salary;
-    private Department department;
-    private Committee[] committees;
-    private int committeeIndex;
+    protected String fullName;
+    protected String id;
+    protected Title title;
+    protected String titleName;
+    protected double salary;
+    protected Department department;
+    protected Committee[] committees;
+    protected int committeeIndex;
 
-    public Lecturer(String fullName, String id, String title, String titleName, double salary, Department department) {
+    public Lecturer(String fullName, String id, String title, String titleName, double salary, Department department)throws LectureNullDetails,IllegalArgumentException{
         this.committees = new Committee[1];
         setFirstName(fullName);
         setId(id);
@@ -33,17 +35,15 @@ public class Lecturer{
         setDepartment(department);
     }
 
-    public Lecturer(String fullName, String id, String title, String titleName, double salary) {
-        this(fullName, id, title, titleName, salary, null);
-    }
+
 
     public String getFullName() {
         return fullName;
     }
 
-    public void setFirstName(String fullName) {
-        if (fullName == null)
-            fullName = "Unknown";
+    public void setFirstName(String fullName) throws LectureNullDetails{
+        if (fullName == null||fullName.isEmpty())
+            throw new LectureNullDetails("Didn't get valid name");
         this.fullName = fullName;
     }
 
@@ -51,9 +51,9 @@ public class Lecturer{
         return id;
     }
 
-    public void setId(String id) {
-        if (id == null)
-            id = "00000000";
+    public void setId(String id) throws LectureNullDetails {
+        if (id == null || id.isEmpty())
+            throw new LectureNullDetails("Didn't get valid name");
         this.id = id;
     }
 
@@ -61,7 +61,7 @@ public class Lecturer{
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(String title)  throws LectureNullDetails, IllegalArgumentException{
         this.title = Title.valueOf(title);
     }
 
@@ -69,9 +69,9 @@ public class Lecturer{
         return titleName;
     }
 
-    public void setTitleName(String titleName) {
-        if (titleName == null)
-            titleName = "Default";
+    public void setTitleName(String titleName) throws LectureNullDetails{
+        if (titleName == null || titleName.isEmpty())
+             throw new LectureNullDetails("Didn't get valid Title name");
         this.titleName = titleName;
     }
 
@@ -79,13 +79,12 @@ public class Lecturer{
         return salary;
     }
 
-    public void setSalary(double salary) {
-        if (salary < 0)
-            salary = 0;
+    public void setSalary(double salary) throws LectureNullDetails {
+        if (salary <= 0)
+            throw new LectureNullDetails("Didn't get valid salary ");
         this.salary = salary;
 
     }
-
     public Department getDepartment() {
         return department;
     }
@@ -128,14 +127,16 @@ public class Lecturer{
         return strArr;
     }
 
-    public boolean addCommittee(Committee committee) {
+    public void addCommittee(Committee committee)throws AssignLecturerToAcademicUnitException {
         if (this.committees.length == this.committeeIndex)
             reSizingArr();
         if (!isExist(committee)){
             this.committees[this.committeeIndex++] = committee;
-            return true;
         }
-        return false;
+        else{
+            throw new AssignLecturerToAcademicUnitException("Can't add lecturer");
+        }
+
     }
 
     public boolean isExist(Committee committee) {
@@ -167,4 +168,7 @@ public class Lecturer{
             this.committees[i] = this.committees[i+1];
         }
     }
+
+
+
 }

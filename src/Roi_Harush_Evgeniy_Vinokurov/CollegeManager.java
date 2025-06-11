@@ -1,4 +1,11 @@
 package Roi_Harush_Evgeniy_Vinokurov;
+import Roi_Harush_Evgeniy_Vinokurov.AcademicUnit.AcademicUnit;
+import Roi_Harush_Evgeniy_Vinokurov.AcademicUnit.Department;
+import Roi_Harush_Evgeniy_Vinokurov.AcademicUnit.Committee;
+import Roi_Harush_Evgeniy_Vinokurov.Exeptions.*;
+import Roi_Harush_Evgeniy_Vinokurov.Lecturers.Doctor;
+import Roi_Harush_Evgeniy_Vinokurov.Lecturers.Lecturer;
+import Roi_Harush_Evgeniy_Vinokurov.Lecturers.Professor;
 
 public class CollegeManager {
         private static final int RESIZE_FACTOR = 2;
@@ -9,9 +16,19 @@ public class CollegeManager {
         private Committee[] committees = new Committee[1];
         private int[] arraysCounter = {0,0,0};
 
-        public void createLecturer(String fullName, String id,String title, String titleName, double salary, String departmentName ){
-        Department department = getDepartment(departmentName);
-        Lecturer lecturer = new Lecturer(fullName,id,title,titleName,salary,department);
+        public void createLecturer(String fullName, String id, String title, String titleName, double salary, String departmentName, String[] articles,String instituteName ) throws LectureNullDetails,IllegalArgumentException, AssignLecturerToAcademicUnitException {
+            Department department = getDepartment(departmentName);
+            Lecturer lecturer;
+            switch (title) {
+                case"Doctor":
+                    lecturer = new Doctor(fullName, id, title, titleName, salary, department, articles);
+                    break;
+                case"Professor":
+                    lecturer = new Professor(fullName, id, title, titleName, salary, department, articles, instituteName);
+                    break;
+                default:
+                    lecturer = new Lecturer(fullName, id, title, titleName, salary, department);
+            }
         if(department != null){
             department.addLecturer(lecturer);
         }
@@ -19,7 +36,8 @@ public class CollegeManager {
     }
 
     public  CollegeManager(String collegeName){
-        this.name = collegeName;
+
+            this.name = collegeName;
     }
 
         public void addLecturer(Lecturer lecturer){
@@ -50,7 +68,7 @@ public class CollegeManager {
         return null;
     }
 
-        public void createDepartment(String departmentName, int numOfStudent){
+        public void createDepartment(String departmentName, int numOfStudent) throws AcademicUnitNullDetailsException{
         Department department = new Department(departmentName,numOfStudent);
         addDepartment(department);
     }
@@ -83,15 +101,11 @@ public class CollegeManager {
         this.departments = newArr;
     }
 
-        public boolean createCommittee(String committeeName, String fullName){
+        public void createCommittee(String committeeName, String fullName) throws InvalidChairException, AcademicUnitNullDetailsException {
         Lecturer chair = getLecturer(fullName);
         Committee committee;
-        if(chair != null && (chair.getTitle() == Lecturer.Title.Doctor || chair.getTitle() == Lecturer.Title.Professor)) {
             committee = new Committee(committeeName, chair);
             addCommittee(committee);
-            return true;
-        }
-        return false;
     }
 
         private void addCommittee(Committee committee) {
@@ -120,54 +134,51 @@ public class CollegeManager {
         return null;
     }
 
-        public boolean updateCommitteeChair(String committeeName, String fullName){
+        public void updateCommitteeChair(String committeeName, String fullName) throws InvalidChairException{
         Committee committee = getCommittee(committeeName);
         Lecturer lecturer = getLecturer(fullName);
         if(committee != null && lecturer != null)
-            if(committee.setChair(lecturer))
-                return true;
-        return false;
+            committee.setChair(lecturer);
+
     }
 
-        public boolean addMember(String committeeName, String fullName){
+        public void addMember(String committeeName, String fullName) throws AssignLecturerToAcademicUnitException{
         Committee committee = getCommittee(committeeName);
         Lecturer lecturer = getLecturer(fullName);
         if(committee != null && lecturer != null) {
-            if(committee.addLecturer(lecturer))
-                return true;
+            if(committee.getLecturers().length==committee.getLecturerIndex()){
+                committee.reSizingArr();
+            }
+            committee.addLecturer(lecturer);
         }
-        return false;
     }
 
-        public boolean removeMember(String committeeName, String fullName){
+        public void removeMember(String committeeName, String fullName) throws RemoveLecturerFromAcademicUnitException {
         Committee committee = getCommittee(committeeName);
         Lecturer lecturer = getLecturer(fullName);
         if(committee != null && lecturer != null) {
-            committee.removeMember(lecturer);
-            return true;
+
+            committee.removeLecturer(lecturer);
         }
-        return false;
     }
 
-        public boolean addLecturerToDepartment(String departmentName, String fullName){
+        public void  addLecturerToDepartment(String departmentName, String fullName) throws AssignLecturerToAcademicUnitException {
         Department department = getDepartment(departmentName);
         Lecturer lecturer = getLecturer(fullName);
-        if(department != null && lecturer != null){
-            if(lecturer.getDepartment() == null && department.addLecturer(lecturer)){
-                return true;
+        if(department != null && lecturer != null && lecturer.getDepartment() == null ){
+            if(department.getLecturers().length==department.getLecturerIndex()){
+                department.reSizingArr();
             }
+              department.addLecturer(lecturer);
         }
-        return false;
     }
 
-        public boolean removeLecturerFromDepartment(String departmentName, String fullName){
+        public void removeLecturerFromDepartment(String departmentName, String fullName) throws RemoveLecturerFromAcademicUnitException{
         Department department = getDepartment(departmentName);
         Lecturer lecturer = getLecturer(fullName);
         if(department != null && lecturer != null){
             department.removeLecturer(lecturer);
-            return true;
         }
-        return false;
     }
 
         public double getAverage(){
@@ -219,41 +230,26 @@ public class CollegeManager {
             if (committee != null)
                 System.out.println(committee);
     }
-
-        public void benchMark(){
-        benchMarkDepartment("Software Engineering", 10);
-        benchMarkDepartment("science", 47);
-        benchMarkLecturer("Roi Harush", "1", "Doctor", "r", 100, "Software Engineering");
-        benchMarkLecturer("Evgeniy Vinokurov", "1", "Professor", "e", 59, "Software Engineering");
-        benchMarkLecturer("Daniel Dazyuba", "3", "First", "r", 33, "science");
-        benchMarkLecturer("Idan Amrani", "4", "First", "i", 75, "science");
-        benchMarkCommittee("1", "Roi Harush");
-        benchMarkCommittee("1", "-");
-        benchMarkCommittee("2", "Daniel Dazyuba");
-        benchMarkCommittee("2", "Evgeniy Vinokurov");
+    public int compareLecturer(String lecturer1Name, String lecturer2Name) {
+        Doctor lecturer1 = (Doctor) getLecturer(lecturer1Name);
+        Doctor lecturer2 = (Doctor) getLecturer(lecturer2Name);
+        return lecturer1.compareTo(lecturer2);
     }
 
-        public void benchMarkLecturer(String fullName, String id, String title, String titleName, double salary, String departmentName){
-        Department department = getDepartment(departmentName);
-        Lecturer lecturer = new Lecturer(fullName,id,title,titleName,salary,department);
-        if(department != null)
-            department.addLecturer(lecturer);
-        addLecturer(lecturer);
+    public int compareCommittee(String committee1Name, String committee2Name, boolean defaultCompare){
+        Committee committee1 = getCommittee(committee1Name);
+        Committee committee2 = getCommittee(committee2Name);
+        if (defaultCompare)
+            return committee1.compareTo(committee2);
+        return new CompareByArticles().compare(committee1,committee2);
     }
 
-        public void benchMarkDepartment(String name, int numOfStudent){
-        Department department = new Department(name,numOfStudent);
-        addDepartment(department);
+    public void cloneCommittee(String committeeName) throws CloneNotSupportedException{
+            Committee currentCommittee = getCommittee(committeeName);
+            addCommittee((Committee) currentCommittee.clone());
     }
 
-        public void benchMarkCommittee(String name, String fullName){
-        Lecturer chair = getLecturer(fullName);
-        Committee committee;
-        if(chair != null && (chair.getTitle() == Lecturer.Title.Doctor || chair.getTitle() == Lecturer.Title.Professor)) {
-            committee = new Committee(name, chair);
-            addCommittee(committee);
-        }
-    }
+
 
 
 }
